@@ -2,9 +2,12 @@ import streamlit as st
 import time
 
 pages = {
+    "Connect" : [  
+        st.Page("./pages/auth/connect.py", title="connection ")
+    ],
     "Config" : [
-        st.Page("./pages/auth/connect.py", title="connection "),
-        st.Page("./pages/change_name_router.py", title="change router name")
+        st.Page("./pages/change_name_router.py", title="change router name"),
+        st.Page("./pages/backup.py", title="backup configuration")
     ]
 }
 
