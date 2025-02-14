@@ -12,7 +12,13 @@ pages = {
     "Config": [
         st.Page("./pages/change_name_router.py", title="Change Router Name"),
         st.Page("./pages/ip_address.py", title="Setting IP Address"),
+        st.Page("./pages/gateway.py", title="Setting Gateway"),
+        st.Page("./pages/dns_server.py", title="Setting DNS"),
+        st.Page("./pages/nat.py", title="Setting NAT"),
         st.Page("./pages/backup.py", title="Backup Configuration")
+    ],
+    "Help": [
+        st.Page("./pages/help.py", title="Help")
     ]
 }
 
