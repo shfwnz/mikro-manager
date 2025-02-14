@@ -37,6 +37,9 @@ else:
                 else:
                     backup_fullname = f"{backup_name}_{timestamp}"
                     command = f"/system backup save name={backup_fullname}"
+                    
+                    st.write(f"Executing: `{command}`")
+                    
                     stdin, stdout, stderr = client.exec_command(command)
                     
                     time.sleep(4)

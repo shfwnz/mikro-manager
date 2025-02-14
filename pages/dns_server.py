@@ -21,6 +21,7 @@ else:
                 st.write(f"Executing: `{command}`")
 
                 stdin, stdout, stderr = client.exec_command(command)
+                
                 stdout.channel.recv_exit_status()
                 output = stdout.read().decode().strip()
                 error = stderr.read().decode().strip()
