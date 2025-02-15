@@ -1,5 +1,8 @@
 import streamlit as st
 
+def subnet_mask_to_cidr(subnet_mask):
+    return sum(bin(int(x)).count('1') for x in subnet_mask.split('.'))
+
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first")
 else: 
@@ -25,13 +28,39 @@ else:
             st.write(f"Selected Interface: {selected_interface}")
             
             # Get IP addresses
-            list_ip = f"/ip address print detail"
-            stdin, stdout, stderr = client.exec_command(list_ip)
+            ip_address = st.text_input("IP Address:", "192.168.88.1")
             
-            output = stdout.read().decode()
-            error = stderr.read().decode()
+            # Get Subnetmask
+            subnet_mask = st.text_input("Subnet:", "255.255.255.0")
             
-            st.text(f"Your IP Addresses:\n{output}")
+            remove_old = st.checkbox("Remove old IP before applying", False)
+            
+            if st.button("Apply IP"):
+                try:
+                    cidr = subnet_mask_to_cidr(subnet_mask)
+                    ip_with_subnet = f"{ip_address}/{cidr}"
+                    
+                    if remove_old:
+                        remove_command = f"/ip address remove [find interface={selected_interface}]"
+                        client.exec_command(remove_command)
+                        st.warning(f"Removing old IPs on {selected_interface}...")
+                    
+                    # Add new IP
+                    command = f"ip address add address={ip_with_subnet} interface={selected_interface}"
+                    
+                    stdin, stdout, stderr = client.exec_command(command)
+                    
+                    stdout.channel.recv_exit_status()
+                    output = stdout.read().decode().strip()
+                    error = stderr.read().decode().strip()
+                    
+                    if error:
+                        st.error(f"Error: {error}")
+                    else:
+                        st.success(f"New IP {ip_with_subnet} applied to {selected_interface}")
+                    
+                except Exception as e:
+                    st.error(f"Failed to Set IP: {e}")
             
     except Exception as e:
         st.error(f"Failed: {e}")
