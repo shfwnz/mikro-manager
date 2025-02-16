@@ -45,7 +45,7 @@ else:
                 help="Example: 192.168.88.1 (Check with your network administrator)"
             )
             
-            st.markdown("[What is gateway?](./pages/help.py)")
+            # st.markdown("[What is gateway?](./pages/help.py)")
 
             # replace_old = st.checkbox("Replace existing gateway", False)
 

@@ -23,13 +23,13 @@ else:
                     interfaces.append(parts[2].replace("name=", "")) 
                     
             selected_interface = st.selectbox("Select Interface:", interfaces)
-            st.markdown("[What is interface?](pages/help)")
+            # st.markdown("[What is interface?](pages/help)")
             
             ip_address = st.text_input("IP Address:", placeholder="Enter the IP address of the device", help="Example: 192.168.88.1")
-            st.markdown("[What is a device IP address?](./pages/help.py)")
+            # st.markdown("[What is a device IP address?](./pages/help.py)")
             
             subnet_mask = st.text_input("Subnet:", placeholder="Enter a subnetmask for the device", help="Example: 255.255.255.0")
-            st.markdown("[What is a subnetmask?](./pages/help.py)")
+            # st.markdown("[What is a subnetmask?](./pages/help.py)")
             
             remove_old = st.checkbox("Remove old IP before applying", False)
             

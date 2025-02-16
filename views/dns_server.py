@@ -13,7 +13,7 @@ else:
 
     selected_server = st.selectbox("Server:", list(dns_options.keys()))
     allow_remote_request = st.checkbox("allow remote request", True)
-    st.markdown("[What is Allow Remote Request?](./pages/help.py)")
+    # st.markdown("[What is Allow Remote Request?](./pages/help.py)")
 
     if st.button("Apply Configuration"):
         try:
