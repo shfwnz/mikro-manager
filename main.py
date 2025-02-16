@@ -25,6 +25,18 @@ with st.sidebar:
     st.header("Connection Status")
     if st.session_state['ssh_client']:
         st.success("SSH Connected")
+        
+        if st.button("Disconnect", key="disconnect_button", help="Click to disconnect from the router."):
+            try:
+                if st.session_state['ssh_client']:
+                    st.session_state['ssh_client'].close() 
+                st.session_state['ssh_client'] = None
+                st.session_state['ssh_connection'] = False
+                st.success("Successfully disconnected from the router.")
+                
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error disconnecting: {e}")
     else:
         st.warning("SSH Not Connected. Please go to 'Connect' and authenticate.")
     
