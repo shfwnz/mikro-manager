@@ -1,0 +1,23 @@
+html,
+body,
+[class*="stText"] {
+  color: #161616 !important;
+}
+body {
+  background-color: #dde9ed !important;
+}
+[class*="stSidebar"],
+[class*="stTextInput"] {
+  background-color: #ffffff !important;
+  color: #161616 !important;
+}
+.stButton > button {
+  background-color: #48ff8e !important;
+  color: #161616 !important;
+  border-radius: 5px;
+  border: none;
+}
+.stButton > button:hover {
+  background-color: #3bd675 !important;
+  color: white !important;
+}

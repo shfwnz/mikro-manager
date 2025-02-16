@@ -4,7 +4,6 @@ if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connect
     st.warning("Please connect to the Router first.")
 else:
     st.header("NAT Configuration")
-
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
@@ -58,21 +57,27 @@ else:
                 except Exception as e:
                     st.error(f"Failed: {e}")
 
-            st.subheader("View Active NAT Rules")
-            if st.button("Show NAT Rules"):
-                try:
-                    get_nat_rules = "/ip firewall nat print"
-                    stdin, stdout, stderr = client.exec_command(get_nat_rules)
-                    stdout.channel.recv_exit_status()
-                    output = stdout.read().decode().strip()
-                    error = stderr.read().decode().strip()
-                    
-                    if error:
-                        st.error(f"Error: {error}")
-                    else:
-                        st.text_area("NAT Rules", output, height=200)
-                except Exception as e:
-                    st.error(f"Failed: {e}")
+            # st.subheader("View Active NAT Rules")
+            # if st.button("Show NAT Rules"):
+            #     with st.spinner("Fetching NAT rules..."):
+            #         try:
+            #             get_nat_rules = "/ip firewall nat print"
+            #             stdin, stdout, stderr = client.exec_command(get_nat_rules)
+            #             stdout.channel.recv_exit_status()
+            #             output = stdout.read().decode().strip()
+            #             error = stderr.read().decode().strip()
+
+            #             if error:
+            #                 st.error(f"Error: {error}")
+            #             else:
+            #                 if output:
+            #                     with st.expander("NAT Rules (Click to expand)", expanded=True):
+            #                         st.code(output, language="bash")
+            #                 else:
+            #                     st.warning("No NAT rules configured.")
+
+            #         except Exception as e:
+            #             st.error(f"Failed: {e}")
 
             st.subheader("Reset NAT Rules")
             if st.button("Remove NAT Rules"):
