@@ -13,7 +13,7 @@ else:
             else:
                 command = f"/system identity set name={new_name}"
                 
-                st.write(f"Executing: `{command}`")
+                # st.write(f"Executing: `{command}`")
                     
                 stdin, stdout, stderr = client.exec_command(command)
                 

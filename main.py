@@ -1,20 +1,22 @@
 import streamlit as st
-import os
+from pathlib import Path
 
 if 'ssh_connection' not in st.session_state:
-    st.session_state['ssh_connection'] = None 
+    st.session_state['ssh_connection'] = False 
 if 'ssh_client' not in st.session_state:
     st.session_state['ssh_client'] = None
+if 'current_page' not in st.session_state:
+    st.session_state['current_page'] = None
 
 pages = {
-    "Connect": "./pages/auth/connect.py",
-    "Change Router Name": "./pages/change_name_router.py",
-    "Setting IP Address": "./pages/ip_address.py",
-    "Setting Gateway": "./pages/gateway.py",
-    "Setting DNS": "./pages/dns_server.py",
-    "Setting NAT": "./pages/nat.py",
-    "Backup Configuration": "./pages/backup.py",
-    "Help": "./pages/help.py"
+    "Connect": "./views/auth/connect.py",
+    "Change Router Name": "./views/change_name_router.py",
+    "IP Address Configuration": "./views/ip_address.py",
+    "Gateway Configuration": "./views/gateway.py",
+    "DNS Configuration": "./views/dns_server.py",
+    "NAT Configuration": "./views/nat.py",
+    "Backup Configuration": "./views/backup.py",
+    "Help": "./views/help.py"
 }
 
 with st.sidebar:
@@ -33,14 +35,14 @@ with st.sidebar:
     with st.expander("⚙️ Configuration", expanded=False):
         if st.button("Change Router Name"):
             st.session_state['current_page'] = "Change Router Name"
-        if st.button("Setting IP Address"):
-            st.session_state['current_page'] = "Setting IP Address"
-        if st.button("Setting Gateway"):
-            st.session_state['current_page'] = "Setting Gateway"
-        if st.button("Setting DNS"):
-            st.session_state['current_page'] = "Setting DNS"
-        if st.button("Setting NAT"):
-            st.session_state['current_page'] = "Setting NAT"
+        if st.button("IP Address Configuration"):
+            st.session_state['current_page'] = "IP Address Configuration"
+        if st.button("Gateway Configuration"):
+            st.session_state['current_page'] = "Gateway Configuration"
+        if st.button("DNS Configuration"):
+            st.session_state['current_page'] = "DNS Configuration"
+        if st.button("Nat Configuration"):
+            st.session_state['current_page'] = "NAT Configuration"
         if st.button("Backup Configuration"):
             st.session_state['current_page'] = "Backup Configuration"
 
@@ -49,13 +51,12 @@ with st.sidebar:
             st.session_state['current_page'] = "Help"
 
 if 'current_page' in st.session_state and st.session_state['current_page'] in pages:
-    file_path = pages[st.session_state['current_page']]
+    file_path = Path(pages[st.session_state['current_page']])
     
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
+    if file_path.exists():
+        with file_path.open("r", encoding="utf-8") as file:
             exec(file.read())
     else:
         st.error(f"File not found: {file_path}")
-        
 else:
     st.header("Welcome to MikroManager!\nPlease connect your router first.")

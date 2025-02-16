@@ -28,6 +28,8 @@ def connect_to_ssh(hostname, port, username, password):
         st.session_state['ssh_connection'] = True
         st.success("Connected successfully!")
         
+        st.rerun()
+        
     except pmk.AuthenticationException:
         st.error("Authentication failed. Please check your username and password.")
         st.session_state['ssh_connection'] = False
@@ -41,11 +43,11 @@ def connect_to_ssh(hostname, port, username, password):
         st.session_state['ssh_connection'] = False
         st.session_state['ssh_client'] = None
 
-if st.button("connect"):
+if st.button("Connect"):
     if hostname and port and username and password:
         connect_to_ssh(hostname, port, username, password)
     else:
-        st.warning("error")
+        st.warning("Please fill in all fields.")
 
 
 

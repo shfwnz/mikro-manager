@@ -6,13 +6,12 @@ def subnet_mask_to_cidr(subnet_mask):
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first")
 else: 
-    st.header("Setting IP Address")
+    st.header("IP Address Configuration")
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None:
             st.error("SSH client is not available. Please reconnect")
         else:
-            # Get interfaces
             get_interface = f"/interface print terse"
             stdin, stdout, stderr = client.exec_command(get_interface)
             output = stdout.read().decode().strip()
@@ -23,19 +22,18 @@ else:
                 if len(parts) >= 3:  
                     interfaces.append(parts[2].replace("name=", "")) 
                     
-            # Show dropdown
             selected_interface = st.selectbox("Select Interface:", interfaces)
-            st.write(f"Selected Interface: {selected_interface}")
+            st.markdown("[What is interface?](pages/help)")
             
-            # Get IP addresses
-            ip_address = st.text_input("IP Address:", "192.168.88.1")
+            ip_address = st.text_input("IP Address:", placeholder="Enter the IP address of the device", help="Example: 192.168.88.1")
+            st.markdown("[What is a device IP address?](./pages/help.py)")
             
-            # Get Subnetmask
-            subnet_mask = st.text_input("Subnet:", "255.255.255.0")
+            subnet_mask = st.text_input("Subnet:", placeholder="Enter a subnetmask for the device", help="Example: 255.255.255.0")
+            st.markdown("[What is a subnetmask?](./pages/help.py)")
             
             remove_old = st.checkbox("Remove old IP before applying", False)
             
-            if st.button("Apply IP"):
+            if st.button("Apply Configuration"):
                 try:
                     cidr = subnet_mask_to_cidr(subnet_mask)
                     ip_with_subnet = f"{ip_address}/{cidr}"
@@ -45,10 +43,11 @@ else:
                         client.exec_command(remove_command)
                         st.warning(f"Removing old IPs on {selected_interface}...")
                     
-                    # Add new IP
                     command = f"ip address add address={ip_with_subnet} interface={selected_interface}"
                     
                     stdin, stdout, stderr = client.exec_command(command)
+                    
+                    # st.write(f"Executing: `{command}`")
                     
                     stdout.channel.recv_exit_status()
                     output = stdout.read().decode().strip()
