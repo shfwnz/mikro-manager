@@ -1,6 +1,11 @@
 import streamlit as st
 import paramiko as pmk
 
+if 'ssh_connection' not in st.session_state:
+    st.session_state['ssh_connection'] = False
+if 'ssh_client' not in st.session_state:
+    st.session_state['ssh_client'] = None
+
 st.title("Connect router using SSH")
 
 col1, col2 = st.columns(2)
@@ -20,21 +25,20 @@ def connect_to_ssh(hostname, port, username, password):
         
         # Save client SSH
         st.session_state['ssh_client'] = client
+        st.session_state['ssh_connection'] = True
+        st.success("Connected successfully!")
         
-        stdin, stdout, stderr = client.exec_command("ip address print")
-        output = stdout.read().decode()
-        error = stderr.read().decode()
-        if output:
-            # st.success("Koneksi Terhubung")
-            # st.text_area("Hasil", output)
-            st.session_state["ssh_connection"] = True
-        if error:
-            # st.error("Koneksi Gagal")
-            # st.text_area("Hasil", error)
-            st.session_state["ssh_connection"] = False
+    except pmk.AuthenticationException:
+        st.error("Authentication failed. Please check your username and password.")
+        st.session_state['ssh_connection'] = False
+        st.session_state['ssh_client'] = None
+    except pmk.SSHException as e:
+        st.error(f"SSH connection failed: {e}")
+        st.session_state['ssh_connection'] = False
+        st.session_state['ssh_client'] = None
     except Exception as e:
-        # st.error(f"Koneksi Gagal: {e}")
-        st.session_state["ssh_connection"] = False
+        st.error(f"An error occurred: {e}")
+        st.session_state['ssh_connection'] = False
         st.session_state['ssh_client'] = None
 
 if st.button("connect"):
