@@ -36,26 +36,26 @@ else:
                 except Exception as e:
                     st.error(f"Failed: {e}")
 
-            st.subheader("Port Forwarding")
-            st.write("Allow external access to a local device (e.g., web server, CCTV, or game server).")
+            # st.subheader("Port Forwarding")
+            # st.write("Allow external access to a local device (e.g., web server, CCTV, or game server).")
             
-            public_port = st.text_input("Public Port (External):", placeholder="8080")
-            local_ip = st.text_input("Local Device IP:", placeholder="192.168.1.100")
-            local_port = st.text_input("Local Port (Internal):", placeholder="80")
+            # public_port = st.text_input("Public Port (External):", placeholder="8080")
+            # local_ip = st.text_input("Local Device IP:", placeholder="192.168.1.100")
+            # local_port = st.text_input("Local Port (Internal):", placeholder="80")
 
-            if st.button("Apply Port Forwarding"):
-                try:
-                    port_forwarding = f"/ip firewall nat add chain=dstnat dst-port={public_port} protocol=tcp action=dst-nat to-addresses={local_ip} to-ports={local_port}"
-                    stdin, stdout, stderr = client.exec_command(port_forwarding)
-                    stdout.channel.recv_exit_status()
-                    error = stderr.read().decode().strip()
+            # if st.button("Apply Port Forwarding"):
+            #     try:
+            #         port_forwarding = f"/ip firewall nat add chain=dstnat dst-port={public_port} protocol=tcp action=dst-nat to-addresses={local_ip} to-ports={local_port}"
+            #         stdin, stdout, stderr = client.exec_command(port_forwarding)
+            #         stdout.channel.recv_exit_status()
+            #         error = stderr.read().decode().strip()
 
-                    if error:
-                        st.error(f"Error: {error}")
-                    else:
-                        st.success(f"Port Forwarding applied: {public_port} → {local_ip}:{local_port}")
-                except Exception as e:
-                    st.error(f"Failed: {e}")
+            #         if error:
+            #             st.error(f"Error: {error}")
+            #         else:
+            #             st.success(f"Port Forwarding applied: {public_port} → {local_ip}:{local_port}")
+            #     except Exception as e:
+            #         st.error(f"Failed: {e}")
 
             # st.subheader("View Active NAT Rules")
             # if st.button("Show NAT Rules"):
