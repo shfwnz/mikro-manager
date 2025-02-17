@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 def subnet_mask_to_cidr(subnet_mask):
     return sum(bin(int(x)).count('1') for x in subnet_mask.split('.'))
@@ -23,16 +24,52 @@ else:
                     interfaces.append(parts[2].replace("name=", "")) 
                     
             selected_interface = st.selectbox("Select Interface:", interfaces)
-            # st.markdown("[What is interface?](pages/help)")
             
             ip_address = st.text_input("IP Address:", placeholder="Enter the IP address of the device", help="Example: 192.168.88.1")
-            # st.markdown("[What is a device IP address?](./pages/help.py)")
-            
             subnet_mask = st.text_input("Subnet:", placeholder="Enter a subnetmask for the device", help="Example: 255.255.255.0")
-            # st.markdown("[What is a subnetmask?](./pages/help.py)")
-            
             remove_old = st.checkbox("Remove old IP before applying", False)
             
+            st.subheader("Enable/Disable Interface")
+            
+            message_success = ""
+            message_error = ""
+            
+            col1, col2 = st.columns([1,3])
+            with col1:
+                if st.button("Enable Interface"):
+                    enable_command = f"/interface enable {selected_interface}"
+                    stdin, stdout, stderr = client.exec_command(enable_command)
+                    
+                    output = stdout.read().decode().strip()
+                    error = stderr.read().decode().strip()
+                    
+                    if error:
+                        message_error = f"Unable to enable {selected_interface}: {error}"
+                    else:
+                        message_success = f"Enabling {selected_interface}"
+            with col2:
+                if st.button("Disable Interface"):
+                    disable_command = f"/interface disable {selected_interface}"
+                    stdin, stdout, stderr = client.exec_command(disable_command)
+                    
+                    output = stdout.read().decode().strip()
+                    error = stderr.read().decode().strip()
+                    
+                    if error:
+                        message_error = f"Unable to disabling {selected_interface}: {error}"
+                    else:
+                        message_success = f"Disabling {selected_interface}"
+                        
+            if message_error:
+                with st.spinner():
+                    time.sleep(2)
+                    st.error(message_error)    
+            else:
+                with st.spinner():
+                    time.sleep(2)
+                    st.success(message_success) 
+            
+            st.subheader("Apply Configuration")
             if st.button("Apply Configuration"):
                 try:
                     cidr = subnet_mask_to_cidr(subnet_mask)

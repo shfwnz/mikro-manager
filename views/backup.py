@@ -80,3 +80,32 @@ else:
                         st.error(f"Error: {error}")
             except Exception as e:
                 st.error(f"Failed: {e}")
+
+    st.header("Upload Configuration")
+    uploaded_file = st.file_uploader("Choose a file", type=["backup"])
+
+    def upload_file(client, file, filename):
+        sftp = client.open_sftp()
+        remote_path = f"/{filename}"
+        
+        try:
+            sftp.put(file, remote_path)
+            sftp.close()
+            st.success(f"File {filename} successfully uploaded to MikroTik.")
+        except Exception as e:
+            st.error(f"Upload failed: {e}")
+
+    if uploaded_file is not None:
+        save_path = os.path.join("temp", uploaded_file.name)
+        os.makedirs("temp", exist_ok=True)
+        with open(save_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        
+        st.success(f"File {uploaded_file.name} ready to upload.")
+        
+        if st.button("Upload to MikroTik"):
+            client = st.session_state.get('ssh_client', None)
+            if client is None:
+                st.error("SSH client is not available. Please reconnect.")
+            else:
+                upload_file(client, save_path, uploaded_file.name)
