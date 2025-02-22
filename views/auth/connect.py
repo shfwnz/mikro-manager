@@ -1,7 +1,7 @@
 import streamlit as st
 import paramiko as pmk
 
-#Check Connection
+#Check connection
 if 'ssh_connection' not in st.session_state:
     st.session_state['ssh_connection'] = False
 if 'ssh_client' not in st.session_state:
