@@ -1,4 +1,9 @@
 import streamlit as st
+import time
+
+def rerun_after(timer):
+    time.sleep(timer)
+    st.rerun()
 
 def get_gateway(client):
     get_interface = "/interface print terse"
@@ -34,6 +39,8 @@ def enable_internet_sharing(client):
                 st.error(f"Error: {error}")
             else:
                 st.success(f"Internet sharing enabled via {selected_interface}.")
+                rerun_after(3)
+                
         except Exception as e:
             st.error(f"Failed: {e}")    
 
@@ -50,6 +57,8 @@ def reset_rules(client):
                 st.error(f"Error: {error}")
             else:
                 st.success("All NAT rules have been removed.")
+                rerun_after(3)
+                
         except Exception as e:
             st.error(f"Failed: {e}")
 
