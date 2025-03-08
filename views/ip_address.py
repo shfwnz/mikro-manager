@@ -1,14 +1,28 @@
 import streamlit as st
+import time
+
+def rerun_after(timer):
+    time.sleep(timer)
+    st.rerun()
 
 def subnet_mask_to_cidr(subnet_mask):
     return sum(bin(int(x)).count('1') for x in subnet_mask.split('.'))
 
-def check_ip(client):
-    st.subheader("IP Addresses")
+def execute_command(client, command):
+    stdin, stdout, stderr = client.exec_command(command)
+    return stdout.read().decode().strip(), stderr.read().decode().strip()
+
+def delete_ip(client, index, address):
+    st.write(f"Deleting IP address with index: {index}") 
+    _, error = execute_command(client, f"/ip address remove numbers={index}")
     
-    stdin, stdout, stderr = client.exec_command("/ip address print terse")
-    output = stdout.read().decode().strip()
-    
+    if error:
+        st.error(f"Failed to delete {address}: {error}")
+    else:
+        st.success(f"Deleted IP {address}")
+        rerun_after(3)
+        
+def get_ip(output):    
     col_headers = st.columns([3,2,1.5,1,1])
     with col_headers[0]: st.markdown("**Address**")
     with col_headers[1]: st.markdown("**Network**")
@@ -45,19 +59,16 @@ def check_ip(client):
             with cols[3]: st.write(status_text)
             with cols[4]:
                 if st.button("Delete", key=f"del_{index}", use_container_width=True):
-                    st.write(f"Deleting IP address with index: {index}") 
-                    stdin, stdout, stderr = client.exec_command(f"/ip address remove numbers={index}")
-                    error = stderr.read().decode().strip()
-                    
-                    if error:
-                        st.error(f"Failed to delete {address}: {error}")
-                    else:
-                        st.success(f"Deleted IP {address}")
-                        st.rerun()
+                    delete_ip(client, index, address)
     
     if not found_ips:
         st.info("No IP addresses found")
-            
+
+def show_ip(client):
+    st.subheader("IP Addresses")
+    output, _ = execute_command(client, "/ip address print terse")
+    get_ip(output)
+    
 def ip_conf(client):
     get_interface = f"/interface print terse"
     stdin, stdout, stderr = client.exec_command(get_interface)
@@ -135,14 +146,14 @@ if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connect
     st.warning("Please connect to the Router first")
 else:
     st.header("IP Address Configuration")
-    tab1, tab2 = st.tabs(["Check IP", "Add IP"])
+    tab1, tab2 = st.tabs(["Show IP", "Add IP"])
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None:
             st.error("SSH client is not available. Please reconnect")
         else:
             with tab1:
-                check_ip(client)
+                show_ip(client)
             with tab2:               
                 ip_conf(client)
                 
