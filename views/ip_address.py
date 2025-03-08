@@ -12,60 +12,61 @@ else:
         if client is None:
             st.error("SSH client is not available. Please reconnect")
         else:
-            #Show IP
             if st.button("Show IP"):
-                st.subheader("Show IP Addresses")
+                st.subheader("IP Addresses")
+                
                 stdin, stdout, stderr = client.exec_command("/ip address print")
                 output = stdout.read().decode()
-                iplist = []
-                for lis in output.split("\n")[2:]:  
-                    parts = lis.split()  
-                    if len(parts) >= 4:  
-                        if len(parts) == 5: 
-                            index = parts[0]
-                            status = parts[1] 
+                
+                col_headers = st.columns([3,2,1.5,1,1])
+                with col_headers[0]: st.markdown("**Address**")
+                with col_headers[1]: st.markdown("**Network**")
+                with col_headers[2]: st.markdown("**Interface**")
+                with col_headers[3]: st.markdown("**Status**")
+                with col_headers[4]: st.markdown("**Action**")
+                
+                found_ips = False
+                for line in output.split("\n")[2:]:
+                    if not line.strip():
+                        continue
+                        
+                    found_ips = True
+                    parts = line.split()
+                    if len(parts) >= 4:
+                        index = parts[0]
+                        
+                        if len(parts) >= 5 and parts[1] in ['D', 'X', 'I']:
+                            status_code = parts[1]
                             address = parts[2]
                             network = parts[3]
                             interface = parts[-1]
                         else:
-                            index = parts[0]
-                            status = ""
+                            status_code = ""
                             address = parts[1]
                             network = parts[2]
                             interface = parts[-1]
-
-                        if status == "":
-                            status = "Active"
-                        elif status == "D":
-                            status = "Dynamic"
-                        elif status == "X":
-                            status = "Disabled"
-                        elif status == "I":
-                            status = "Invalid"
                         
-                        iplist.append({
-                            "index" : index,
-                            "Address": address,
-                            "Network": network,
-                            "Interface": interface,
-                            "Status": status
-                        })
+                        status_text = {
+                            "": "Active",
+                            "D": "Dynamic",
+                            "X": "Disabled",
+                            "I": "Invalid"
+                        }.get(status_code, "Unknown")
+                        
+                        cols = st.columns([3,2,1.5,1,1])
+                        with cols[0]: st.write(address)
+                        with cols[1]: st.write(network)
+                        with cols[2]: st.write(interface)
+                        with cols[3]: st.write(status_text)
+                        with cols[4]:
+                            if st.button("Delete", key=f"del_{index}", use_container_width=True):
+                                client.exec_command(f"/ip address remove numbers={index}")
+                                st.success(f"Deleted IP {address}")
+                                st.rerun()
                 
-                for i in iplist:
-                    address, network, interface, status, actions = st.columns([3,2,1.5,1,1])
-                    with address:
-                        st.write(i["Address"])
-                    with network:
-                        st.write(i["Network"])
-                    with interface:
-                        st.write(i["Interface"])
-                    with status:
-                        st.write(i["Status"])
-                    with actions:
-                        if st.button("Delete", key=f"remove_{i['Address']}"):
-                            stdin, stdout, stderr = client.exec_command(f"/ip address remove numbers={i['index']}")
-                            st.rerun()
-                                
+                if not found_ips:
+                    st.info("No IP addresses found")
+                                    
             get_interface = f"/interface print terse"
             stdin, stdout, stderr = client.exec_command(get_interface)
             output = stdout.read().decode().strip()
