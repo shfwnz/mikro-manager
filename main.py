@@ -1,11 +1,11 @@
 import streamlit as st
 from pathlib import Path
 
-# def load_css():
-#     with open("./style/styles.css") as f:
-#         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+def load_css():
+    with open("./assets/style/styles.css") as css:
+        st.markdown(f"<style>{css.read()}</style>", unsafe_allow_html=True)
 
-# load_css()
+load_css()
 
 if 'ssh_connection' not in st.session_state:
     st.session_state['ssh_connection'] = False 

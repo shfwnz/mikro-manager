@@ -1,23 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap");
+
 html,
 body,
-[class*="stText"] {
-  color: #161616 !important;
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span {
+  font-family: "Pixelify Sans", sans-serif !important;
 }
-body {
-  background-color: #dde9ed !important;
-}
-[class*="stSidebar"],
-[class*="stTextInput"] {
-  background-color: #ffffff !important;
-  color: #161616 !important;
-}
-.stButton > button {
-  background-color: #48ff8e !important;
-  color: #161616 !important;
-  border-radius: 5px;
-  border: none;
-}
-.stButton > button:hover {
-  background-color: #3bd675 !important;
-  color: white !important;
+
+input,
+textarea,
+select,
+[data-baseweb="input"],
+[data-baseweb="textarea"],
+[data-baseweb="select"] input,
+[role="combobox"],
+[role="textbox"] {
+  font-family: "Pixelify Sans", sans-serif !important;
 }
