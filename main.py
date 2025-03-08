@@ -51,25 +51,25 @@ with st.sidebar:
         st.warning("SSH Not Connected. Please go to 'Connect' and authenticate.")
     
     with st.expander("🔗 Connect", expanded=True):
-        if st.button("Go to Connection Page"):
+        if st.button("Go to Connection Page", use_container_width=True):
             st.session_state['current_page'] = "Connect"
 
     with st.expander("⚙️ Configuration", expanded=False):
-        if st.button("Change Router Name"):
+        if st.button("Change Router Name", use_container_width=True):
             st.session_state['current_page'] = "Change Router Name"
-        if st.button("IP Address Configuration"):
+        if st.button("IP Address Configuration", use_container_width=True):
             st.session_state['current_page'] = "IP Address Configuration"
-        if st.button("Gateway Configuration"):
+        if st.button("Gateway Configuration", use_container_width=True):
             st.session_state['current_page'] = "Gateway Configuration"
-        if st.button("DNS Configuration"):
+        if st.button("DNS Configuration", use_container_width=True):
             st.session_state['current_page'] = "DNS Configuration"
-        if st.button("Nat Configuration"):
+        if st.button("Nat Configuration", use_container_width=True):
             st.session_state['current_page'] = "NAT Configuration"
-        if st.button("Backup Configuration"):
+        if st.button("Backup Configuration", use_container_width=True):
             st.session_state['current_page'] = "Backup Configuration"
 
     with st.expander("❓ Help", expanded=False):
-        if st.button("Help Page"):
+        if st.button("Help Page", use_container_width=True):
             st.session_state['current_page'] = "Help"
 
 if 'current_page' in st.session_state and st.session_state['current_page'] in pages:
