@@ -5,7 +5,7 @@ def rerun_after(timer):
     time.sleep(timer)
     st.rerun()
 
-def get_gateway(client):
+def get_interface(client):
     get_interface = "/interface print terse"
     stdin, stdout, stderr = client.exec_command(get_interface)
     output = stdout.read().decode().strip()
@@ -21,7 +21,7 @@ def get_gateway(client):
 def enable_internet_sharing(client):
     st.subheader("Enable Internet Sharing")
     
-    interfaces = get_gateway(client)
+    interfaces = get_interface(client)
     
     if not interfaces:
         st.warning("Interfaces not found")

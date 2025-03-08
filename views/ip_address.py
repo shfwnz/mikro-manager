@@ -1,16 +1,27 @@
 import streamlit as st
 import time
 
+def execute_command(client, command):
+    stdin, stdout, stderr = client.exec_command(command)
+    return stdout.read().decode().strip(), stderr.read().decode().strip()
+
+def get_interface(client):
+    output, _ = execute_command(client, "/interface print terse")
+    
+    interfaces = []
+    for line in output.split("\n"):
+        parts = line.split()
+        if len(parts) >= 3:
+            interfaces.append(parts[2].replace("name=", ""))
+            
+    return interfaces
+
 def rerun_after(timer):
     time.sleep(timer)
     st.rerun()
 
 def subnet_mask_to_cidr(subnet_mask):
     return sum(bin(int(x)).count('1') for x in subnet_mask.split('.'))
-
-def execute_command(client, command):
-    stdin, stdout, stderr = client.exec_command(command)
-    return stdout.read().decode().strip(), stderr.read().decode().strip()
 
 def delete_ip(client, index, address):
     st.write(f"Deleting IP address with index: {index}") 
@@ -70,15 +81,11 @@ def show_ip(client):
     get_ip(output)
     
 def ip_conf(client):
-    get_interface = f"/interface print terse"
-    stdin, stdout, stderr = client.exec_command(get_interface)
-    output = stdout.read().decode().strip()
+    interfaces = get_interface(client)
     
-    interfaces = []
-    for line in output.split("\n"):
-        parts = line.split()
-        if len(parts) >= 3:
-            interfaces.append(parts[2].replace("name=", "")) 
+    if not interfaces:
+        st.warning("Interfaces not found")
+        return
             
     selected_interface = st.selectbox("Select Interface:", interfaces, placeholder="choose an interfaces", index=None)
     
