@@ -1,9 +1,22 @@
 import streamlit as st
+import time
+
+def execute_command(client, command):
+    stdin, stdout, stderr = client.exec_command(command)
+    return stdout.channel.recv_exit_status(), stdout.read().decode().strip(), stderr.read().decode().strip()
+
+def loading(timer, message):
+    with st.spinner("wait"):  
+        time.sleep(timer)
+        st.write(f"Running Command: `{message}`")
+
+def rerun_after(timer):
+    time.sleep(timer)
+    st.rerun()
 
 def get_interface(client):
     get_interface = "/interface print terse"
-    stdin, stdout, stderr = client.exec_command(get_interface)
-    output = stdout.read().decode().strip()
+    _, output, _ = execute_command(client, get_interface)
     
     interfaces = []
     for line in output.split("\n"):
@@ -13,16 +26,17 @@ def get_interface(client):
             
     return interfaces   
 
-def apply_configuration(client, add_dstaddress, new_gateway):  
+def adding_gateway(client, add_dstaddress, new_gateway):  
     try:
         add_gateway_command = f"/ip route add dst-address={add_dstaddress} gateway={new_gateway}"
-        stdin, stdout, stderr = client.exec_command(add_gateway_command)
-        stderr_output = stderr.read().decode().strip()
+        _, _, error = execute_command(client, add_gateway_command)
 
-        if stderr_output:
-            st.error(f"Error adding new gateway: {stderr_output}")
+        if error:
+            st.error(f"Error adding new gateway: {error}")
         else:
+            loading(1, "adding gateway...")
             st.success(f"New gateway `{new_gateway}` applied successfully!")
+            rerun_after(4)
 
     except Exception as e:
         st.error(f"Failed: {e}")  
@@ -30,8 +44,7 @@ def apply_configuration(client, add_dstaddress, new_gateway):
 def list_gateway(client):
     try:
         get_routes_command = "/ip route print terse"
-        stdin, stdout, stderr = client.exec_command(get_routes_command)
-        output = stdout.read().decode().strip()
+        _, output, _ = execute_command(client, get_routes_command)
 
         if not output:
             st.warning("No gateway routes found.")
@@ -52,7 +65,6 @@ def list_gateway(client):
 
     except Exception as e:
         st.error(f"Failed to list gateways: {e}")
-
         
 def add_gateway(client):
     interfaces = get_interface(client)
@@ -67,20 +79,22 @@ def add_gateway(client):
     new_gateway = st.text_input("Gateway:", placeholder="Enter gateway", help="Example: 192.168.88.1")
     
     if st.button("Save Settings"):
-        apply_configuration(client, add_dstaddress, new_gateway)
+        adding_gateway(client, add_dstaddress, new_gateway)
         
 def delete_gateway(client):
     gateway_to_delete = st.text_input("Enter Gateway IP to Delete:", placeholder="e.g., 192.168.88.1")
     if st.button("Delete Gateway"):
         try:
             delete_command = f"/ip route remove [find gateway={gateway_to_delete}]"
-            stdin, stdout, stderr = client.exec_command(delete_command)
-            stderr_output = stderr.read().decode().strip()
+            _, _, error = execute_command(client, delete_command)
 
-            if stderr_output:
-                st.error(f"Error deleting gateway: {stderr_output}")
+            if error:
+                st.error(f"Error deleting gateway: {error}")
             else:
+                loading(1, "deleting gateway...")
                 st.success(f"Gateway `{gateway_to_delete}` deleted successfully!")
+                rerun_after(4)
+                
         except Exception as e:
             st.error(f"Failed to delete gateway: {e}")
 
