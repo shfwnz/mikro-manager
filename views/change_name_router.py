@@ -23,7 +23,7 @@ else:
             else:
                 change_router_name_command = f"/system identity set name={new_name}"
                 
-                _, output, error = execute_command(client, change_router_name_command)
+                _, _, error = execute_command(client, change_router_name_command)
                     
                 if error:
                     st.error(f"Error: {error}")

@@ -1,6 +1,10 @@
 import streamlit as st
 import time
 
+def execute_command(client, command):
+    stdin, stdout, stderr = client.exec_command(command)
+    return stdout.channel.recv_exit_status(), stdout.read().decode().strip(), stderr.read().decode().strip()
+
 def rerun_after(timer):
     time.sleep(timer)
     st.rerun()
@@ -80,48 +84,3 @@ else:
                 
     except Exception as e:
         st.error(f"Failed: {e}")
-        
-            # st.subheader("Port Forwarding")
-            # st.write("Allow external access to a local device (e.g., web server, CCTV, or game server).")
-            
-            # public_port = st.text_input("Public Port (External):", placeholder="8080")
-            # local_ip = st.text_input("Local Device IP:", placeholder="192.168.1.100")
-            # local_port = st.text_input("Local Port (Internal):", placeholder="80")
-
-            # if st.button("Apply Port Forwarding"):
-            #     try:
-            #         port_forwarding = f"/ip firewall nat add chain=dstnat dst-port={public_port} protocol=tcp action=dst-nat to-addresses={local_ip} to-ports={local_port}"
-            #         stdin, stdout, stderr = client.exec_command(port_forwarding)
-            #         stdout.channel.recv_exit_status()
-            #         error = stderr.read().decode().strip()
-
-            #         if error:
-            #             st.error(f"Error: {error}")
-            #         else:
-            #             st.success(f"Port Forwarding applied: {public_port} → {local_ip}:{local_port}")
-            #     except Exception as e:
-            #         st.error(f"Failed: {e}")
-
-            # st.subheader("View Active NAT Rules")
-            # if st.button("Show NAT Rules"):
-            #     with st.spinner("Fetching NAT rules..."):
-            #         try:
-            #             get_nat_rules = "/ip firewall nat print"
-            #             stdin, stdout, stderr = client.exec_command(get_nat_rules)
-            #             stdout.channel.recv_exit_status()
-            #             output = stdout.read().decode().strip()
-            #             error = stderr.read().decode().strip()
-
-            #             if error:
-            #                 st.error(f"Error: {error}")
-            #             else:
-            #                 if output:
-            #                     with st.expander("NAT Rules (Click to expand)", expanded=True):
-            #                         st.code(output, language="bash")
-            #                 else:
-            #                     st.warning("No NAT rules configured.")
-
-            #         except Exception as e:
-            #             st.error(f"Failed: {e}")
-
-            
