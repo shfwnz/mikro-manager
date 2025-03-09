@@ -3,10 +3,10 @@ import time
 
 def execute_command(client, command):
     stdin, stdout, stderr = client.exec_command(command)
-    return stdout.read().decode().strip(), stderr.read().decode().strip()
+    return stdout.channel.recv_exit_status(), stdout.read().decode().strip(), stderr.read().decode().strip()
 
 def get_interface(client):
-    output, _ = execute_command(client, "/interface print terse")
+    _, output, _ = execute_command(client, "/interface print terse")
     
     interfaces = []
     for line in output.split("\n"):
@@ -25,7 +25,7 @@ def subnet_mask_to_cidr(subnet_mask):
 
 def delete_ip(client, index, address):
     st.write(f"Deleting IP address with index: {index}") 
-    _, error = execute_command(client, f"/ip address remove numbers={index}")
+    _, _, error = execute_command(client, f"/ip address remove numbers={index}")
     
     if error:
         st.error(f"Failed to delete {address}: {error}")
@@ -76,7 +76,7 @@ def get_ip(output):
 
 def show_ip(client):
     st.subheader("IP Addresses")
-    output, _ = execute_command(client, "/ip address print terse")
+    _, output, _ = execute_command(client, "/ip address print terse")
     get_ip(output)
     
 def enable_disable_interface_btn(client, selected_interface):
@@ -85,18 +85,18 @@ def enable_disable_interface_btn(client, selected_interface):
     
     col1, spacer, col2 = st.columns([1,2,1])
     with col1:
-        if st.button("Enable Interface", use_container_width=True):
+        if st.button("Turn On Connection", use_container_width=True):
             enable_command = f"/interface enable {selected_interface}"
-            _ , error = execute_command(client, enable_command)
+            _, _ , error = execute_command(client, enable_command)
             
             if error:
                 message_error = f"Unable to enable {selected_interface}: {error}"
             else:
                 message_success = f"Enabled {selected_interface}"
     with col2:
-        if st.button("Disable Interface", use_container_width=True):
+        if st.button("Turn Off Connection", use_container_width=True):
             disable_command = f"/interface disable {selected_interface}"
-            _ , error = execute_command(client, disable_command)
+            _, _, error = execute_command(client, disable_command)
             
             if error:
                 message_error = f"Unable to disable {selected_interface}: {error}"
@@ -119,7 +119,7 @@ def apply_conf(client, selected_interface, ip_address, subnet_mask, remove_old):
             st.warning(f"Removing old IPs on {selected_interface}...")
         
         command = f"/ip address add address={ip_with_subnet} interface={selected_interface}"
-        _ , error = execute_command(client, command)
+        _, _, error = execute_command(client, command)
         
         if error:
             st.error(f"Error: {error}")
@@ -137,22 +137,22 @@ def ip_conf(client):
         st.warning("Interfaces not found")
         return
             
-    selected_interface = st.selectbox("Select Interface:", interfaces, placeholder="choose an interfaces", index=None)
+    selected_interface = st.selectbox("Choose Connection Port:", interfaces, placeholder="choose an interfaces", index=None)
     
     enable_disable_interface_btn(client, selected_interface)
     
     ip_address = st.text_input("IP Address:", placeholder="Enter the IP address of the device", help="Example: 192.168.88.1")
-    subnet_mask = st.text_input("Subnet:", placeholder="Enter a subnet mask for the device", help="Example: 255.255.255.0")
-    remove_old = st.checkbox("Remove old IP before applying", False)
+    subnet_mask = st.text_input("Subnetmask:", placeholder="Enter a subnet mask for the device", help="Example: 255.255.255.0")
+    remove_old = st.checkbox("Replace existing address", True)
     
-    if st.button("Apply Configuration"):
+    if st.button("Save Settings"):
         apply_conf(client, selected_interface, ip_address, subnet_mask, remove_old)
     
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first")
 else:
-    st.header("IP Address Configuration")
-    tab1, tab2 = st.tabs(["Show IP", "Add IP"])
+    st.header("Network Settings")
+    tab1, tab2 = st.tabs(["Current Addresses", "Set New Address"])
     
     try:
         client = st.session_state.get('ssh_client', None)
