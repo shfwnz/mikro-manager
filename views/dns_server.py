@@ -12,16 +12,16 @@ else:
         "Other": ""
     }
 
-    selected_server = st.selectbox("Server:", list(dns_options.keys()))
+    selected_server = st.selectbox("Server Provider:", list(dns_options.keys()))
     
     if selected_server == "Other":
-        custom_dns = st.text_input("Enter custom DNS servers (comma-separated)")
+        custom_dns = st.text_input("Enter custom name servers (comma-separated)", placeholder="1.1.1.1, 8.8.8.8")
     else:
         custom_dns = dns_options[selected_server]
     
     allow_remote_request = st.checkbox("allow remote request", True)
     
-    if st.button("Apply Configuration"):
+    if st.button("Save Settings"):
         try:
             client = st.session_state.get('ssh_client', None)
             if client is None or client.get_transport() is None or not client.get_transport().is_active():

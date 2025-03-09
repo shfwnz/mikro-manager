@@ -66,7 +66,7 @@ def add_gateway(client):
     add_dstaddress = st.text_input("Enter IP address:", value="0.0.0.0/0", help="Example: 0.0.0.0/0")
     new_gateway = st.text_input("Gateway:", placeholder="Enter gateway", help="Example: 192.168.88.1")
     
-    if st.button("Apply Configuration"):
+    if st.button("Save Settings"):
         apply_configuration(client, add_dstaddress, new_gateway)
         
 def delete_gateway(client):
