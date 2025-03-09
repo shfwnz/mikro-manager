@@ -92,7 +92,7 @@ else:
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
-            st.error("SSH client is not available. Please reconnect.")
+            st.error("Unable to connect to the router. Please reconnect.")
             st.stop()
         else:
             with tab1: 

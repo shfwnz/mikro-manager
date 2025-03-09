@@ -33,7 +33,7 @@ else:
             try:
                 client = st.session_state.get('ssh_client', None)
                 if client is None:
-                    st.error("SSH client is not available. Please reconnect.")
+                    st.error("Unable to connect to the router. Please reconnect.")
                 else:
                     backup_fullname = f"{backup_name}_{timestamp}"
                     command = f"/system backup save name={backup_fullname}"
@@ -106,6 +106,6 @@ else:
         if st.button("Upload to MikroTik"):
             client = st.session_state.get('ssh_client', None)
             if client is None:
-                st.error("SSH client is not available. Please reconnect.")
+                st.error("Unable to connect to the router. Please reconnect.")
             else:
                 upload_file(client, save_path, uploaded_file.name)

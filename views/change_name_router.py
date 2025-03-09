@@ -19,7 +19,7 @@ else:
         try:
             client = st.session_state.get('ssh_client', None)
             if client is None:
-                st.error("SSH client is not available. Please reconnect.")
+                st.error("Unable to connect to the router. Please reconnect.")
             else:
                 change_router_name_command = f"/system identity set name={new_name}"
                 
