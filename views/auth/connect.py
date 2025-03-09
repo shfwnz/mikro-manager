@@ -1,5 +1,6 @@
 import streamlit as st
 import paramiko as pmk
+import time
 
 #Check connection
 if 'ssh_connection' not in st.session_state:
@@ -46,6 +47,8 @@ def connect_to_ssh(hostname, port, username, password):
 
 if st.button("Connect"):
     if hostname and port and username and password:
+        st.write(f"Executing: `Connecting to SSH`")
+        time.sleep(0.5)
         connect_to_ssh(hostname, port, username, password)
     else:
         st.warning("Please fill in all fields.")
