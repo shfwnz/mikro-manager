@@ -120,4 +120,5 @@ Backing up your router settings ensures that you can quickly restore your config
 If you have further questions, please contact your network administrator or check the official MikroTik documentation.
 
 """)
-st.page_link("main", label="🔙 Back to Main Page")
+if st.button("🔙 Back to Main Page"):
+    st.switch_page("main.py")
