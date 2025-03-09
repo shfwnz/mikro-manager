@@ -28,5 +28,13 @@ select,
 }
 
 table {
-  border: 0px;
+  border-collapse: collapse;
+  width: 100%;
+  border: none;
+}
+table th,
+table td {
+  border: none !important;
+  padding: 8px;
+  text-align: left;
 }
