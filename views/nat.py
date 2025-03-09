@@ -5,14 +5,18 @@ def execute_command(client, command):
     stdin, stdout, stderr = client.exec_command(command)
     return stdout.channel.recv_exit_status(), stdout.read().decode().strip(), stderr.read().decode().strip()
 
+def loading(timer, message):
+    with st.spinner("wait"):  
+        time.sleep(timer)
+        st.write(f"Running Command: `{message}`")
+
 def rerun_after(timer):
     time.sleep(timer)
     st.rerun()
 
 def get_interface(client):
-    get_interface = "/interface print terse"
-    stdin, stdout, stderr = client.exec_command(get_interface)
-    output = stdout.read().decode().strip()
+    get_interface_command = "/interface print terse"
+    _, output, _ = execute_command(client, get_interface_command)
     
     interfaces = []
     for line in output.split("\n"):
@@ -20,6 +24,10 @@ def get_interface(client):
         if len(parts) >= 3:
             interfaces.append(parts[2].replace("name=", ""))
             
+    if not output.strip():
+        st.warning("No NAT rules found.")
+        return
+
     return interfaces
             
 def enable_internet_sharing(client):
@@ -34,16 +42,15 @@ def enable_internet_sharing(client):
     selected_interface = st.selectbox("Select Interface:", interfaces)
     if st.button("Enable Internet Sharing"):
         try:
-            connect_internet = f"/ip firewall nat add chain=srcnat out-interface={selected_interface} action=masquerade"
-            stdin, stdout, stderr = client.exec_command(connect_internet)
-            stdout.channel.recv_exit_status()
-            error = stderr.read().decode().strip()
+            connect_internet_command = f"/ip firewall nat add chain=srcnat out-interface={selected_interface} action=masquerade"
+            _, _, error = execute_command(client, connect_internet_command)
             
             if error:
                 st.error(f"Error: {error}")
             else:
+                loading(1, "Enabling Internet Sharing...")
                 st.success(f"Internet sharing enabled via {selected_interface}.")
-                rerun_after(3)
+                rerun_after(4.5)
                 
         except Exception as e:
             st.error(f"Failed: {e}")    
@@ -52,16 +59,15 @@ def reset_rules(client):
     st.subheader("Reset NAT Rules")
     if st.button("Remove NAT Rules"):
         try:
-            remove_nat = "/ip firewall nat remove [find]"
-            stdin, stdout, stderr = client.exec_command(remove_nat)
-            stdout.channel.recv_exit_status()
-            error = stderr.read().decode().strip()
+            remove_nat_command = "/ip firewall nat remove [find]"
+            _, _, error = execute_command(client, remove_nat_command)
             
             if error:
                 st.error(f"Error: {error}")
             else:
+                loading(1, "Removing all rules...")
                 st.success("All NAT rules have been removed.")
-                rerun_after(3)
+                rerun_after(5)
                 
         except Exception as e:
             st.error(f"Failed: {e}")
@@ -74,7 +80,7 @@ else:
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
-            st.error("SSH client is not available. Please reconnect.")
+            st.error("Unable to connect to the router. Please reconnect.")
             st.stop()
         else:
             with tab1:
