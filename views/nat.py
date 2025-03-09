@@ -25,7 +25,7 @@ def get_interface(client):
             interfaces.append(parts[2].replace("name=", ""))
             
     if not output.strip():
-        st.warning("No NAT rules found.")
+        st.warning("No sharing rules found")
         return
 
     return interfaces
@@ -39,7 +39,7 @@ def enable_internet_sharing(client):
         st.warning("Interfaces not found")
         return
     
-    selected_interface = st.selectbox("Select Interface:", interfaces)
+    selected_interface = st.selectbox("Choose Connection Source:", interfaces)
     if st.button("Enable Internet Sharing"):
         try:
             connect_internet_command = f"/ip firewall nat add chain=srcnat out-interface={selected_interface} action=masquerade"
@@ -56,8 +56,8 @@ def enable_internet_sharing(client):
             st.error(f"Failed: {e}")    
 
 def reset_rules(client):
-    st.subheader("Reset NAT Rules")
-    if st.button("Remove NAT Rules"):
+    st.subheader("Remove Sharing Settings")
+    if st.button("Stop Internet Sharing"):
         try:
             remove_nat_command = "/ip firewall nat remove [find]"
             _, _, error = execute_command(client, remove_nat_command)
@@ -66,7 +66,7 @@ def reset_rules(client):
                 st.error(f"Error: {error}")
             else:
                 loading(1, "Removing all rules...")
-                st.success("All NAT rules have been removed.")
+                st.success("All rules have been removed.")
                 rerun_after(5)
                 
         except Exception as e:
@@ -75,8 +75,8 @@ def reset_rules(client):
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first.")
 else:
-    st.header("NAT Configuration")
-    tab1, tab2 = st.tabs(["Share Internet", "Reset Rules"])
+    st.header("Internet Sharing Settings")
+    tab1, tab2 = st.tabs(["Connect Devices to Internet", "Remove Sharing Settings"])
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
