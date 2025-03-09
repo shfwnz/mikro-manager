@@ -3,109 +3,134 @@ import time
 import os
 import datetime
 
-if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first")
-else: 
-    st.header("Backup Configuration")
-    backup_name = st.text_input("Backup Name", "backup-configuration")
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    def download_backup(client, backup):
-        sftp = client.open_sftp()
-        remote_path = f"{backup}.backup"
-        local_path = os.path.join("backup", f"{backup}.backup")
+def create_backup(client, backup_name):
+    try:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_fullname = f"{backup_name}_{timestamp}"
+        command = f"/system backup save name={backup_fullname}"
         
-        try:
-            os.makedirs("backup", exist_ok=True) 
+        stdin, stdout, stderr = client.exec_command(command)
+        time.sleep(4)
+        error = stderr.read().decode()
+        
+        if error:
+            st.error(f"Error: {error}")
+        else:
+            st.success(f"Backup Success: {backup_fullname}.backup")
+            return backup_fullname
+    except Exception as e:
+        st.error(f"Backup Filed: {e}")
+        return None
+
+def download_backup(client, backup):
+    try:
+        with client.open_sftp() as sftp:
+            remote_path = f"/{backup}.backup"
+            local_path = os.path.join("backup", f"{backup}.backup")
+            os.makedirs("backup", exist_ok=True)
             sftp.get(remote_path, local_path)
-            sftp.close()
-            st.success(f"Backup downloaded to: {local_path}")
-            return local_path
-        except FileNotFoundError:
-            st.error(f"Backup file not found on MikroTik: {remote_path}")
-            return None
-        except Exception as e:
-            st.error(f"Download failed: {e}")
-            return None
-    
-    if st.button("Create Backup"):
-        with st.spinner("Creating Backup..."):
-            try:
-                client = st.session_state.get('ssh_client', None)
-                if client is None:
-                    st.error("Unable to connect to the router. Please reconnect.")
-                else:
-                    backup_fullname = f"{backup_name}_{timestamp}"
-                    command = f"/system backup save name={backup_fullname}"
-                    
-                    st.write(f"Executing: `{command}`")
-                    
-                    stdin, stdout, stderr = client.exec_command(command)
-                    
-                    time.sleep(4)
-                    
-                    output = stdout.read().decode()
-                    error = stderr.read().decode()
-                        
-                    if output:
-                        st.success(f"Backup Created Successfully: {backup_fullname}.backup")
+        st.success(f"Backup downloaded to: {local_path}")
+        return local_path
+    except FileNotFoundError:
+        st.error(f"Backup file not found on MikroTik: {remote_path}")
+        return None
+    except Exception as e:
+        st.error(f"Failed to download: {e}")
+        return None
 
-                        stdin, stdout, stderr = client.exec_command("/file print detail")
-                        file_list = stdout.read().decode()
-                        # st.text(f"File list from MikroTik:\n{file_list}")
-                        
-                        found_file = False
-                        for line in file_list.split("\n"):
-                            if backup_fullname in line and ".backup" in line:
-                                found_file = True
-                                break
-                        
-                        if found_file:
-                            st.info(f"Backup file found on MikroTik: {backup_fullname}.backup")
-                            local_file = download_backup(client, backup_fullname)
-
-                            if local_file:
-                                with open(local_file, "rb") as file:
-                                    st.download_button(
-                                        label="Download Backup",
-                                        data=file,
-                                        file_name=f"{backup_fullname}.backup",
-                                        mime="application/octet-stream"
-                                    )
-                            else:
-                                st.error("Failed to download backup file.")
-                        else:
-                            st.error(f"Backup file not found on MikroTik: {backup_fullname}.backup")
-                    if error:
-                        st.error(f"Error: {error}")
-            except Exception as e:
-                st.error(f"Failed: {e}")
-
-    st.header("Upload Configuration")
-    uploaded_file = st.file_uploader("Choose a file", type=["backup"])
-
-    def upload_file(client, file, filename):
-        sftp = client.open_sftp()
-        remote_path = f"/{filename}"
-        
-        try:
+def upload_file(client, file, filename):
+    try:
+        with client.open_sftp() as sftp:
+            remote_path = f"/{filename}"
             sftp.put(file, remote_path)
-            sftp.close()
-            st.success(f"File {filename} successfully uploaded to MikroTik.")
-        except Exception as e:
-            st.error(f"Upload failed: {e}")
+        st.success(f"File {filename} successfully uploaded to MikroTik.")
+        return remote_path
+    except Exception as e:
+        st.error(f"Upload failed: {e}")
+        return None
 
+def list_backup_files(client):
+    try:
+        with client.open_sftp() as sftp:
+            files = sftp.listdir("/")
+            backup_files = [file for file in files if file.endswith('.backup')]
+            return backup_files
+    except Exception as e:
+        st.error(f"Failed to get the list of backup files: {e}")
+        return []
+
+if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
+    st.warning("Please connect to the router first.")
+else:
+    st.header("Create and Download Backup")
+    client = st.session_state.get('ssh_client', None)
+    if client is None:
+        st.error("SSH client is not available. Please reconnect.")
+    else:
+        backup_name = st.text_input("Backup name", "backup-configuration")
+        if st.button("Create Backup"):
+            with st.spinner("Creating Backup..."):
+                backup_filename = create_backup(client, backup_name)
+                if backup_filename:
+                    local_file = download_backup(client, backup_filename)
+                    if local_file:
+                        with open(local_file, "rb") as file:
+                            st.download_button(
+                                label="Download Backup",
+                                data=file,
+                                file_name=f"{backup_filename}.backup",
+                                mime="application/octet-stream"
+                            )
+    
+    st.header("Upload Backup File to MikroTik")
+    
+    # Inisialisasi state untuk proses upload
+    if 'uploaded_file_path' not in st.session_state:
+        st.session_state.uploaded_file_path = None
+    if 'uploaded_filename' not in st.session_state:
+        st.session_state.uploaded_filename = None
+    
+    uploaded_file = st.file_uploader("Select backup file", type=["backup"])
+    
     if uploaded_file is not None:
         save_path = os.path.join("temp", uploaded_file.name)
         os.makedirs("temp", exist_ok=True)
         with open(save_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
+        st.session_state.uploaded_file_path = save_path
+        st.session_state.uploaded_filename = uploaded_file.name
         st.success(f"File {uploaded_file.name} ready to upload.")
-        
-        if st.button("Upload to MikroTik"):
-            client = st.session_state.get('ssh_client', None)
-            if client is None:
-                st.error("Unable to connect to the router. Please reconnect.")
-            else:
-                upload_file(client, save_path, uploaded_file.name)
+    
+    if st.button("Upload to MikroTik") and st.session_state.uploaded_file_path:
+        client = st.session_state.get('ssh_client', None)
+        if client is None:
+            st.error("SSH client is not available. Please reconnect.")
+        else:
+            remote_path = upload_file(client, st.session_state.uploaded_file_path, st.session_state.uploaded_filename)
+            if remote_path:
+                st.success(f"The backup file is successfully uploaded to the MikroTik and is available at the path: {remote_path}")
+    
+    st.header("List of Backup Files on MikroTik")
+    client = st.session_state.get('ssh_client', None)
+    if client is None:
+        st.error("SSH client is not available. Please reconnect.")
+    else:
+        backup_files = list_backup_files(client)
+        if backup_files:
+            st.table({"Backup file name": backup_files})
+        else:
+            st.warning("No backup files were found on the MikroTik.")
+
+    st.header("Restore Backup Tutorial")
+    st.markdown("""
+    **To restore a backup, follow these steps:**
+    
+    1. Contact your network administrator to perform the restore.
+    2. If you have access to the MikroTik, run the following command through the terminal:
+       ```
+       /system backup load name=<file_backup name>
+       ```
+       
+    ⚠️ *Important: Restoring will restore the previous configuration and may cause a restart of the router.*
+    """)
