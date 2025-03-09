@@ -40,7 +40,7 @@ def list_gateway(client):
         routes = []
         for line in output.split("\n"):
             parts = line.split()
-            if len(parts) >= 3:  # Pastikan ada cukup data dalam setiap baris
+            if len(parts) >= 3: 
                 dst_address = next((p.replace("dst-address=", "") for p in parts if p.startswith("dst-address=")), "Unknown")
                 gateway = next((p.replace("gateway=", "") for p in parts if p.startswith("gateway=")), "Unknown")
                 routes.append({"Destination": dst_address, "Gateway": gateway})

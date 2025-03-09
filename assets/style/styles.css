@@ -26,3 +26,7 @@ select,
   /* font-family: "Pixelify Sans", sans-serif !important; */
   font-family: "Neuton", sans-serif !important;
 }
+
+table {
+  border: 0px;
+}
