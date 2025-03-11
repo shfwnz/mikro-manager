@@ -20,7 +20,7 @@ pages = {
     "IP Address Configuration": "./views/ip_address.py",
     "Gateway Configuration": "./views/gateway.py",
     "DNS Configuration": "./views/dns_server.py",
-    "NAT Configuration": "./views/nat.py",
+    "Block Sites": "./views/block_addr.py",
     "Backup Configuration": "./views/backup.py",
     "Help": "./views/help.py"
 }
