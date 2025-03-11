@@ -60,7 +60,7 @@ def add_to_list(client, url):
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first")
 else:
-    st.header("Blocking Websites Made Easy")
+    st.header("Blocking Websites")
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
