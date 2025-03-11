@@ -63,8 +63,8 @@ with st.sidebar:
             st.session_state['current_page'] = "Gateway Configuration"
         if st.button("DNS Configuration", use_container_width=True):
             st.session_state['current_page'] = "DNS Configuration"
-        if st.button("Nat Configuration", use_container_width=True):
-            st.session_state['current_page'] = "NAT Configuration"
+        if st.button("Block Sites", use_container_width=True):
+            st.session_state['current_page'] = "Block Sites"
         if st.button("Backup Configuration", use_container_width=True):
             st.session_state['current_page'] = "Backup Configuration"
 
