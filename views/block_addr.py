@@ -60,13 +60,13 @@ def add_to_list(client, url):
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
     st.warning("Please connect to the Router first")
 else:
-    st.header("🔒 Blocking Websites Made Easy")
+    st.header("Blocking Websites Made Easy")
     try:
         client = st.session_state.get('ssh_client', None)
         if client is None or client.get_transport() is None or not client.get_transport().is_active():
             st.error("Unable to connect to the router. Please reconnect.")
         else:
-            st.subheader("🆕 Add Site to Block List")
+            st.subheader("Add Site to Block List")
             url = st.text_input("Enter Website to Block", placeholder="facebook.com")
             if st.button("Add & Auto-Categorize"):
                 if url:
