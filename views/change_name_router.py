@@ -6,7 +6,7 @@ def execute_command(client, command):
     return stdout.channel.recv_exit_status(), stdout.read().decode().strip(), stderr.read().decode().strip()
 
 def loading(timer, message):
-    with st.spinner("wait"):  
+    with st.spinner("Processing..."):  
         time.sleep(timer)
         st.write(f"Executing: `{message}`")
 
