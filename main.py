@@ -15,13 +15,20 @@ if 'current_page' not in st.session_state:
     st.session_state['current_page'] = None
 
 pages = {
+    # Auth
     "Connect": "./views/auth/connect.py",
+    
+    # Basic Conf
     "Change Router Name": "./views/change_name_router.py",
     "IP Address Configuration": "./views/ip_address.py",
-    "Gateway Configuration": "./views/gateway.py",
     "DNS Configuration": "./views/dns_server.py",
     "Block Sites": "./views/block_addr.py",
     "Backup Configuration": "./views/backup.py",
+    
+    # Advance
+    "Gateway Configuration": "./views/gateway.py",
+    
+    # Help
     "Help": "./views/help.py"
 }
 
@@ -54,19 +61,21 @@ with st.sidebar:
         if st.button("Go to Connection Page", use_container_width=True):
             st.session_state['current_page'] = "Connect"
 
-    with st.expander("⚙️ Configuration", expanded=False):
+    with st.expander("⚙️ Basic Configuration", expanded=False):
         if st.button("Change Router Name", use_container_width=True):
             st.session_state['current_page'] = "Change Router Name"
         if st.button("IP Address Configuration", use_container_width=True):
             st.session_state['current_page'] = "IP Address Configuration"
-        if st.button("Gateway Configuration", use_container_width=True):
-            st.session_state['current_page'] = "Gateway Configuration"
         if st.button("DNS Configuration", use_container_width=True):
             st.session_state['current_page'] = "DNS Configuration"
         if st.button("Block Sites", use_container_width=True):
             st.session_state['current_page'] = "Block Sites"
         if st.button("Backup Configuration", use_container_width=True):
             st.session_state['current_page'] = "Backup Configuration"
+            
+    with st.expander("🤖 Advance Configuration", expanded=False):
+        if st.button("Gateway Configuration", use_container_width=True):
+            st.session_state['current_page'] = "Gateway Configuration"
 
     with st.expander("❓ Help", expanded=False):
         if st.button("Help Page", use_container_width=True):
