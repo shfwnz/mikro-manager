@@ -27,6 +27,7 @@ pages = {
     
     # Advance
     "Gateway Configuration": "./views/gateway.py",
+    "DHCP Configuration": "./views/dhcp.py",
     
     # Help
     "Help": "./views/help.py"
@@ -76,6 +77,8 @@ with st.sidebar:
     with st.expander("🤖 Advance Configuration", expanded=False):
         if st.button("Gateway Configuration", use_container_width=True):
             st.session_state['current_page'] = "Gateway Configuration"
+        if st.button("DHCP Configuration", use_container_width=True):
+            st.session_state['current_page'] = "DHCP Configuration"
 
     with st.expander("❓ Help", expanded=False):
         if st.button("Help Page", use_container_width=True):

@@ -73,7 +73,7 @@ def reset_rules(client):
             st.error(f"Failed: {e}")
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first.")
+    st.warning("Please connect to the router first")
 else:
     st.header("Internet Sharing Settings")
     tab1, tab2 = st.tabs(["Connect Devices to Internet", "Remove Sharing Settings"])

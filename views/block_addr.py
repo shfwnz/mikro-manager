@@ -28,7 +28,7 @@ def show_list(client):
     return sorted(unique_lists) if unique_lists else ["No Categories Found"]
 
 def blocking_sites(client, list_name):
-    block_command = f"/ip firewall filter add action=drop chain=forward dst-address-list={list_name}"
+    block_command = f"/ip firewall filter add action=drop chain=output dst-address-list={list_name}"
     _, _, error = execute_command(client, block_command)
     if error:
         st.error(f"Error: {error}")
@@ -58,7 +58,7 @@ def add_to_list(client, url):
         return None
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first")
+    st.warning("Please connect to the router first")
 else:
     st.header("Blocking Websites")
     try:

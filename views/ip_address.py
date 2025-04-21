@@ -149,7 +149,7 @@ def ip_conf(client):
         apply_conf(client, selected_interface, ip_address, subnet_mask, remove_old)
     
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first")
+    st.warning("Please connect to the router first")
 else:
     st.header("Network Settings")
     tab1, tab2 = st.tabs(["Current Addresses", "Set New Address"])
