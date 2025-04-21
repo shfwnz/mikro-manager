@@ -21,29 +21,32 @@ with col2:
 def connect_to_ssh(hostname, port, username, password):
     try:
         client = pmk.SSHClient()
-        client.load_system_host_keys()
-        client.set_missing_host_key_policy(pmk.AutoAddPolicy)
-        client.connect(hostname, port=int(port), username=username, password=password)
-        
-        # Save client SSH
+        client.set_missing_host_key_policy(pmk.AutoAddPolicy())
+
+        client.connect(
+            hostname,
+            port=int(port),
+            username=username,
+            password=password,
+            look_for_keys=False,
+            allow_agent=False
+        )
+
         st.session_state['ssh_client'] = client
         st.session_state['ssh_connection'] = True
         st.success("Connected successfully!")
-        
+
         st.rerun()
-        
+
     except pmk.AuthenticationException:
         st.error("Authentication failed. Please check your username and password.")
         st.session_state['ssh_connection'] = False
-        st.session_state['ssh_client'] = None
     except pmk.SSHException as e:
         st.error(f"SSH connection failed: {e}")
         st.session_state['ssh_connection'] = False
-        st.session_state['ssh_client'] = None
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.session_state['ssh_connection'] = False
-        st.session_state['ssh_client'] = None
 
 if st.button("Connect"):
     if hostname and port and username and password:
@@ -52,6 +55,3 @@ if st.button("Connect"):
         connect_to_ssh(hostname, port, username, password)
     else:
         st.warning("Please fill in all fields.")
-
-
-

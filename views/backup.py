@@ -60,7 +60,7 @@ def list_backup_files(client):
         return []
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the router first.")
+    st.warning("Please connect to the router first")
 else:
     st.header("Create and Download Backup")
     client = st.session_state.get('ssh_client', None)

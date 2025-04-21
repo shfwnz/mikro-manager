@@ -99,7 +99,7 @@ def delete_gateway(client):
             st.error(f"Failed to delete gateway: {e}")
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first.")
+    st.warning("Please connect to the router first")
 else:
     st.header("Gateway Configuration")
     tab1, tab2, tab3 = st.tabs(["List Gateway", "Add Gateway", "Delete Gateway"])

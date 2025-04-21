@@ -11,7 +11,7 @@ def loading(timer, message):
         st.write(f"Executing: `{message}`")
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first")
+    st.warning("Please connect to the router first")
 else:
     st.header("Change Router Name")
     new_name = st.text_input("Router Name:", "Mikrotik-New")

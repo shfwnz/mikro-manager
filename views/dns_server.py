@@ -29,7 +29,7 @@ def apply_configuration(client, custom_dns_input, allow_remote_request):
             st.text(f"Response: {output}")
 
 if 'ssh_connection' not in st.session_state or not st.session_state['ssh_connection']:
-    st.warning("Please connect to the Router first")
+    st.warning("Please connect to the router first")
 else:
     st.header("Setting DNS")
     tab1, tab2 = st.tabs(["Server Provider", "Custom Name Server"])
